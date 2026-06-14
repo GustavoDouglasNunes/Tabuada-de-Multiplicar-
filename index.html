@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório de Matemática - Tabuada de Multiplicar</title>
+    <style>
+        /* Estilização moderna com foco em legibilidade e UI/UX */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+        }
+
+        /* Ajuste no Body para permitir o rodapé no fim */
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            /* Organiza os elementos em coluna */
+            align-items: center;
+            /* Centraliza horizontalmente */
+            min-height: 100vh;
+            /* Garante que o corpo ocupe toda a altura da tela */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            margin-top: 40px;
+            /* Espaço no topo */
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        input[type="number"] {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-completa {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-completa:hover {
+            background-color: #059669;
+        }
+
+        .btn-numero {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-numero:hover {
+            background-color: #1d4ed8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #resultado {
+            margin-top: 30px;
+            text-align: left;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Estilo dos blocos de tabuada com bordas laterais azuis */
+        .tabuada-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            border-right: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .tabuada-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .tabuada-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            color: #334155;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+        .tabuada-item {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 3px 0;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Estilização do Rodapé */
+        footer {
+            margin-top: auto;
+            /* ESTA É A CHAVE: empurra o rodapé para o fim do container flex */
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            background-color: transparent;
+        }
+
+        /* Scrollbar personalizada */
+        #resultado::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #resultado::-webkit-scrollbar-thumb {
+            background: hwb(313 11% 5%);
+            border-radius: 10px;
+            ss
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Tabuada de Multiplicar</h1>
+
+        <div class="input-group">
+            <input type="number" id="numInput" placeholder="Introduza um número para a tabuada específica">
+
+            <div class="button-group">
+                <button class="btn-completa" onclick="gerarCompleta()">Tabuada Completa (1-10)</button>
+                <button class="btn-numero" onclick="gerarEspecifica()">Tabuada do Nr.</button>
+            </div>
+        </div>
+
+        <div id="resultado">
+            <!-- Os resultados serão injectados aqui via JavaScript -->
+        </div>
+    </div>
+
+    <footer>
+        &copy; <span id="ano"></span> - Gustavo Douglas - Todos os direitos reservados.
+    </footer>
+
+    <script>
+        // Define o ano atual automaticamente
+        document.getElementById('ano').textContent = new Date().getFullYear();
+
+        function gerarBlocoHTML(n) {
+            let bloco = `<div class="tabuada-card"><h3>Tabuada do Número ${n}</h3>`;
+            for (let i = 1; i <= 10; i++) {
+                bloco += `<div class="tabuada-item">${n} x ${i} = <strong>${n * i}</strong></div>`;
+            }
+            bloco += `</div>`;
+            return bloco;
+        }
+
+        function gerarCompleta() {
+            const display = document.getElementById('resultado');
+            display.innerHTML = '';
+
+            let htmlFinal = "";
+            for (let j = 1; j <= 10; j++) {
+                htmlFinal += gerarBlocoHTML(j);
+            }
+            display.innerHTML = htmlFinal;
+        }
+
+        function gerarEspecifica() {
+            const input = document.getElementById('numInput');
+            const display = document.getElementById('resultado');
+            const valor = input.value;
+
+            display.innerHTML = '';
+
+            if (valor === "") {
+                display.innerHTML = "<p style='color: #ef4444; font-weight: bold; text-align: center;'>Aviso: Por favor, introduza um número válido.</p>";
+                return;
+            }
+
+            display.innerHTML = gerarBlocoHTML(Number(valor));
+        }
+    </script>
+
+</body>
+
+</html>
