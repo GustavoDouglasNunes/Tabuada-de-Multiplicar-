@@ -1,4 +1,4 @@
-📐 Laboratório de Matemática — Tabuada de Multiplicar
+# 📐 Laboratório de Matemática — Tabuada de Multiplicar
 
 > Aplicação web interativa para geração e visualização de tabuadas de multiplicação
 
