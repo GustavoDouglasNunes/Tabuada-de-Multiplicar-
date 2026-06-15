@@ -9,7 +9,7 @@
 
 ---
 
-## 📋 Descrição
+## 📋 Descrição - Deploy Vercel
 
 Aplicação web de página única (*single-page*) que permite ao utilizador gerar e consultar tabuadas de multiplicação de forma interativa e visualmente organizada, **sem necessidade de instalação ou dependências externas**.
 
