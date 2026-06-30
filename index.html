@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-pt">
+<html lang="pt-PT">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Laboratório de Matemática - Gerador de Tabuada de Multiplicar interativo">
+    <meta name="author" content="Gustavo Douglas Nunes">
     <title>Laboratório de Matemática - Tabuada de Multiplicar</title>
     <style>
         /* Estilização moderna com foco em legibilidade e UI/UX */
@@ -13,48 +15,89 @@
             --bg-color: #f8fafc;
             --text-color: #1e293b;
             --card-bg: #ffffff;
+            --error-color: #ef4444;
         }
 
         /* Ajuste no Body para permitir o rodapé no fim */
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            /* Organiza os elementos em coluna */
             align-items: center;
-            /* Centraliza horizontalmente */
-            min-height: 100vh;
-            /* Garante que o corpo ocupe toda a altura da tela */
             margin: 0;
             padding: 0;
         }
 
-        .container {
+        /* Skip link para acessibilidade */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        main {
             background: var(--card-bg);
             padding: 2.5rem;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             width: 90%;
             max-width: 550px;
-            text-align: center;
             margin-top: 40px;
-            /* Espaço no topo */
             margin-bottom: 20px;
+            flex-grow: 1;
         }
 
         h1 {
             font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
             color: #0f172a;
         }
 
-        .input-group {
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Formulário */
+        form {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-bottom: 25px;
+        }
+
+        /* Labels para acessibilidade */
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            color: #475569;
         }
 
         input[type="number"] {
@@ -68,8 +111,14 @@
 
         input[type="number"]:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
+        input[type="number"]:invalid {
+            border-color: var(--error-color);
+        }
+
+        /* Grupo de botões */
         .button-group {
             display: flex;
             gap: 10px;
@@ -84,6 +133,11 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 0.95rem;
+        }
+
+        button:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
 
         .btn-completa {
@@ -108,16 +162,37 @@
             transform: scale(0.98);
         }
 
+        /* Secção de resultados */
         #resultado {
             margin-top: 30px;
-            text-align: left;
             max-height: 500px;
             overflow-y: auto;
             padding-right: 10px;
+            scroll-behavior: smooth;
         }
 
-        /* Estilo dos blocos de tabuada com bordas laterais azuis */
-        .tabuada-card {
+        /* Mensagem de alerta */
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid var(--error-color);
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            color: #0c4a6e;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Cards de tabuada com semântica */
+        article.tabuada-card {
             background: #f1f5f9;
             padding: 15px;
             border-radius: 10px;
@@ -127,12 +202,12 @@
             transition: transform 0.2s;
         }
 
-        .tabuada-card:hover {
+        article.tabuada-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
         }
 
-        .tabuada-card h3 {
+        article.tabuada-card h2 {
             margin: 0 0 10px 0;
             font-size: 1.1rem;
             color: #334155;
@@ -151,7 +226,6 @@
         /* Estilização do Rodapé */
         footer {
             margin-top: auto;
-            /* ESTA É A CHAVE: empurra o rodapé para o fim do container flex */
             width: 100%;
             text-align: center;
             padding: 20px 0;
@@ -166,49 +240,100 @@
         }
 
         #resultado::-webkit-scrollbar-thumb {
-            background: hwb(313 11% 5%);
+            background: #cbd5e1;
             border-radius: 10px;
-            ss
+        }
+
+        #resultado::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
+    <!-- Skip link para acessibilidade -->
+    <a href="#resultado" class="skip-link">Saltar para resultados</a>
 
-    <div class="container">
-        <h1>Tabuada de Multiplicar</h1>
+    <!-- Elemento principal semântico -->
+    <main>
+        <!-- Header semântico com título -->
+        <header>
+            <h1>Tabuada de Multiplicar</h1>
+            <p class="subtitle">Laboratório de Matemática</p>
+        </header>
 
-        <div class="input-group">
-            <input type="number" id="numInput" placeholder="Introduza um número para a tabuada específica">
-
-            <div class="button-group">
-                <button class="btn-completa" onclick="gerarCompleta()">Tabuada Completa (1-10)</button>
-                <button class="btn-numero" onclick="gerarEspecifica()">Tabuada do Nr.</button>
+        <!-- Formulário semântico -->
+        <form id="tabuadaForm" aria-label="Formulário de geração de tabuada">
+            <div>
+                <label for="numInput">Número para tabuada específica:</label>
+                <input 
+                    type="number" 
+                    id="numInput" 
+                    min="1" 
+                    max="1000"
+                    placeholder="Ex: 7"
+                    aria-describedby="num-help"
+                >
+                <small id="num-help">Introduza um número entre 1 e 1000</small>
             </div>
-        </div>
 
-        <div id="resultado">
+            <!-- Grupo de botões -->
+            <div class="button-group" role="group" aria-label="Opções de tabuada">
+                <button 
+                    type="button" 
+                    class="btn-completa" 
+                    onclick="gerarCompleta()"
+                    aria-label="Gerar tabuada completa de 1 a 10"
+                >
+                    Tabuada Completa (1-10)
+                </button>
+                <button 
+                    type="button" 
+                    class="btn-numero" 
+                    onclick="gerarEspecifica()"
+                    aria-label="Gerar tabuada do número introduzido"
+                >
+                    Tabuada do Nr.
+                </button>
+            </div>
+        </form>
+
+        <!-- Secção de resultados semântica -->
+        <section id="resultado" aria-live="polite" aria-label="Resultados da tabuada">
             <!-- Os resultados serão injectados aqui via JavaScript -->
-        </div>
-    </div>
+        </section>
+    </main>
 
+    <!-- Footer semântico -->
     <footer>
-        &copy; <span id="ano"></span> - Gustavo Douglas - Todos os direitos reservados.
+        <p>&copy; <span id="ano"></span> - Gustavo Douglas - Todos os direitos reservados.</p>
     </footer>
 
     <script>
         // Define o ano atual automaticamente
         document.getElementById('ano').textContent = new Date().getFullYear();
 
+        /**
+         * Gera um bloco HTML semântico de tabuada
+         * @param {number} n - O número para o qual gerar a tabuada
+         * @returns {string} HTML do card de tabuada
+         */
         function gerarBlocoHTML(n) {
-            let bloco = `<div class="tabuada-card"><h3>Tabuada do Número ${n}</h3>`;
+            let bloco = `<article class="tabuada-card" aria-labelledby="tabuada-${n}">
+                <h2 id="tabuada-${n}">Tabuada do Número ${n}</h2>`;
+            
             for (let i = 1; i <= 10; i++) {
-                bloco += `<div class="tabuada-item">${n} x ${i} = <strong>${n * i}</strong></div>`;
+                bloco += `<div class="tabuada-item">${n} × ${i} = <strong>${n * i}</strong></div>`;
             }
-            bloco += `</div>`;
+            
+            bloco += `</article>`;
             return bloco;
         }
 
+        /**
+         * Gera a tabuada completa (1-10)
+         */
         function gerarCompleta() {
             const display = document.getElementById('resultado');
             display.innerHTML = '';
@@ -217,23 +342,61 @@
             for (let j = 1; j <= 10; j++) {
                 htmlFinal += gerarBlocoHTML(j);
             }
+            
             display.innerHTML = htmlFinal;
+            
+            // Announce to screen readers
+            display.setAttribute('aria-label', 'Tabuada completa de 1 a 10 carregada');
         }
 
+        /**
+         * Gera a tabuada de um número específico
+         */
         function gerarEspecifica() {
             const input = document.getElementById('numInput');
             const display = document.getElementById('resultado');
-            const valor = input.value;
+            const valor = input.value.trim();
 
             display.innerHTML = '';
 
+            // Validação
             if (valor === "") {
-                display.innerHTML = "<p style='color: #ef4444; font-weight: bold; text-align: center;'>Aviso: Por favor, introduza um número válido.</p>";
+                display.innerHTML = `
+                    <div class="alert alert-error" role="alert">
+                        <strong>Aviso:</strong> Por favor, introduza um número válido.
+                    </div>`;
+                input.focus();
                 return;
             }
 
-            display.innerHTML = gerarBlocoHTML(Number(valor));
+            const numero = Number(valor);
+            
+            if (isNaN(numero) || numero <= 0) {
+                display.innerHTML = `
+                    <div class="alert alert-error" role="alert">
+                        <strong>Erro:</strong> O número deve ser maior que 0.
+                    </div>`;
+                input.focus();
+                return;
+            }
+
+            display.innerHTML = gerarBlocoHTML(numero);
+            
+            // Announce to screen readers
+            display.setAttribute('aria-label', `Tabuada do número ${numero} carregada`);
         }
+
+        // Suporte a Enter no input
+        document.getElementById('numInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                gerarEspecifica();
+            }
+        });
+
+        // Prevenir submissão padrão do formulário
+        document.getElementById('tabuadaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+        });
     </script>
 
 </body>
